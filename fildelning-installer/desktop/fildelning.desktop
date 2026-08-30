@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Fildelning
+Comment=Dela och ta emot filer i det lokala nätverket
+Exec=python3 @INSTALL_DIR@/gui/gui.py
+Icon=folder-publicshare
+Terminal=false
+Categories=Utility;Network;FileTransfer;
+StartupNotify=true

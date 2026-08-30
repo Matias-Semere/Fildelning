@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+sys.path.insert(0, "/opt/fildelning")
+
+from shares import (
+    create_share,
+    load_shares,
+    remove_share
+)
+
+from file_utils import get_base_url
+
+
+def usage():
+    print("""
+Usage:
+
+  share "/path/to/directory"
+  share list
+  share stop TOKEN
+  share stop-all
+""")
+
+
+def main():
+
+    if len(sys.argv) < 2:
+        usage()
+        return 1
+
+    command = sys.argv[1]
+
+    if command == "stop-all":
+
+        if len(sys.argv) != 2:
+            usage()
+            return 1
+
+        shares = load_shares()
+        tokens = list(shares.keys())
+
+        if not tokens:
+            print("Inga aktiva delningar.")
+            return 0
+
+        count = 0
+        for token in tokens:
+            if remove_share(token):
+                count += 1
+
+        print(f"Stoppade {count} delningar.")
+        return 0
+
+    if command == "list":
+
+        shares = load_shares()
+
+        if not shares:
+            print("Inga aktiva delningar.")
+            return 0
+
+        base_url = get_base_url()
+
+        for token, data in shares.items():
+            print()
+            print("Token:")
+            print(token)
+            print("Directory:")
+            print(data["directory"])
+            print("URL:")
+            print(f"{base_url}/s/{token}")
+
+        print()
+        return 0
+
+    if command == "stop":
+
+        if len(sys.argv) != 3:
+            usage()
+            return 1
+
+        token = sys.argv[2]
+
+        if remove_share(token):
+            print("Delning stoppad.")
+            return 0
+
+        print("Token hittades inte.")
+        return 1
+
+    directory = os.path.abspath(os.path.expanduser(command))
+
+    if not os.path.isdir(directory):
+        print(
+            f"Fel: katalogen finns inte:\n"
+            f"{directory}"
+        )
+        return 1
+
+    token = create_share(directory)
+    base_url = get_base_url()
+
+    print()
+    print("Delar:")
+    print(directory)
+    print()
+    print("Nedladdningslänk:")
+    print(f"{base_url}/s/{token}")
+    print()
+    print(
+        "Den som har länken kan ladda ner "
+        "filer från denna katalog."
+    )
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

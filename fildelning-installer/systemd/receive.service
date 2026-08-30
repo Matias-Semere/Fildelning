@@ -1,0 +1,23 @@
+[Unit]
+Description=Public File Receive Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+User=@USERNAME@
+Group=user
+
+WorkingDirectory=/opt/fildelning
+Environment=FILDELNING_BASE_URL=http://82.70.50.231
+
+ExecStart=/usr/bin/python3 /opt/fildelning/receive_server.py
+
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
